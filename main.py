@@ -6,7 +6,7 @@ import random
 import asyncio
 from ping import keep_alive
 from Functions.database import server_collection, get_response
-from Functions.management import database_creation, stats_update, time_get
+from Functions.management import database_creation, stats_update, database_deletion
 
 intents = discord.Intents.all()
 mentions = discord.AllowedMentions.all()
@@ -58,6 +58,11 @@ async def on_guild_join(ctx):
         else:
             print("No channels set!")
     await database_creation(ctx)
+
+
+@bot.event
+async def on_guild_remove(ctx):
+    await database_deletion(ctx)
 
 
 @bot.event
