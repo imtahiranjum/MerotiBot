@@ -98,6 +98,10 @@ async def database_creation(ctx):
     server_collection.insert_one(info)
 
 
+async def database_deletion(ctx):
+    server_collection.delete_many({"guild id": ctx.id})
+
+
 async def stats_update(ctx, bot):
     guild = ctx.guild
     total_members = guild.member_count
