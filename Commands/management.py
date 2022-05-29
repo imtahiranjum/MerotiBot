@@ -11,58 +11,70 @@ class Management(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command(name="stats enable", aliases=("se", ), help="Adds stats to the server")
     async def stats_enable(self, ctx):
+        global status
+        for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "stats status": 1}):
+            status = get_response(x)
+            print(status)
+        if status == "False":
+            overwrites = {
+                ctx.guild.default_role: discord.PermissionOverwrite(connect=False)
+            }
+            category_stats = await ctx.guild.create_category(name="↢↢↢↢『SERVER STATS』↣↣↣↣")
+            total_members = ctx.guild.member_count
+            bot_counter = 0
+            try:
+                for x in ctx.guild.members:
+                    if x.bot:
+                        bot_counter = bot_counter + 1
+            except Exception as e:
+                ctx.reply(f"Couldn't count bots because following error occurred:-\n{e}")
 
-        overwrites = {
-            ctx.guild.default_role: discord.PermissionOverwrite(connect=False)
-        }
-        category_stats = await ctx.guild.create_category(name="↢↢↢↢『SERVER STATS』↣↣↣↣")
-        total_members = ctx.guild.member_count
-        bot_counter = 0
-        try:
-            for x in ctx.guild.members:
-                if x.bot:
-                    bot_counter = bot_counter + 1
-        except Exception as e:
-            ctx.reply(f"Couldn't count bots because following error occurred:-\n{e}")
-
-        members_channel = await ctx.guild.create_voice_channel(name=f"『🤵』 Members: {total_members}",
-                                                               overwrites=overwrites, category=category_stats)
-        bots_channel = await ctx.guild.create_voice_channel(name=f"『🤖』 Bots: {bot_counter}", overwrites=overwrites,
-                                                            category=category_stats)
-        find_server = {"guild id": ctx.guild.id}
-        enable_stats = {"$set": {"stats status": True, "members channel id": members_channel.id,
-                                 "bots channel id": bots_channel.id, "category stats id": category_stats.id}}
-        if find_server is not None:
-            server_collection.update_one(find_server, enable_stats)
-        await ctx.reply(f"Successfully enabled stats")
+            members_channel = await ctx.guild.create_voice_channel(name=f"『🤵』 Members: {total_members}",
+                                                                   overwrites=overwrites, category=category_stats)
+            bots_channel = await ctx.guild.create_voice_channel(name=f"『🤖』 Bots: {bot_counter}", overwrites=overwrites,
+                                                                category=category_stats)
+            find_server = {"guild id": ctx.guild.id}
+            enable_stats = {"$set": {"stats status": True, "members channel id": members_channel.id,
+                                     "bots channel id": bots_channel.id, "category stats id": category_stats.id}}
+            if find_server is not None:
+                server_collection.update_one(find_server, enable_stats)
+            await ctx.reply(f"Successfully enabled stats")
+        else:
+            await ctx.reply(f"Stats are already enabled")
 
     @commands.has_permissions(administrator=True)
     @commands.command(name="stats disable", aliases=("sd", ), help="Removes stats from the server")
     async def stats_disable(self, ctx):
-        global find
+        global find, status
         global category_stats_id
         for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "category stats id": 1}):
             category_stats_id = get_response(x)
             find = x
 
-        try:
-            stats_category = discord.Guild.get_channel(ctx.guild, int(category_stats_id))
-            for channel in stats_category.voice_channels:
-                await channel.delete()
+        for y in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "stats status": 1}):
+            status = get_response(y)
 
-            for channel in stats_category.text_channels:
-                await channel.delete()
+        if status == "True":
+            try:
+                stats_category = discord.Guild.get_channel(ctx.guild, int(category_stats_id))
+                for channel in stats_category.voice_channels:
+                    await channel.delete()
 
-            await stats_category.delete()
+                for channel in stats_category.text_channels:
+                    await channel.delete()
 
-        except Exception as e:
-            await ctx.reply(f"Error Occurred: {e}")
+                await stats_category.delete()
 
-        disable_stats = {"$set": {"stats status": False, "members channel id": 0,
-                                  "bots channel id": 0, "category stats id": 0}}
-        if find is not None:
-            server_collection.update_one(find, disable_stats)
-        await ctx.reply(f"Successfully disabled stats")
+            except Exception as e:
+                await ctx.reply(f"Error Occurred: {e}")
+
+            disable_stats = {"$set": {"stats status": False, "members channel id": 0,
+                                      "bots channel id": 0, "category stats id": 0}}
+            if find is not None:
+                server_collection.update_one(find, disable_stats)
+            await ctx.reply(f"Successfully disabled stats")
+        else:
+            await ctx.reply(f"Stats are already disabled")
 
     @commands.has_permissions(administrator=True)
     @commands.command(name="change_prefix", aliases=("cp",), help="Changes the prefix for server")
