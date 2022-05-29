@@ -1,7 +1,7 @@
 import os
 import pymongo as pymongo
 
-database_access = os.environ['database_access']
+database_access = os.getenv('database_access')
 client = pymongo.MongoClient(
         f"{database_access}")
 database_to_connect = "MerotiBot"
