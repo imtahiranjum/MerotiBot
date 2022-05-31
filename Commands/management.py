@@ -9,7 +9,7 @@ class Management(commands.Cog):
         self.bot = bot
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="stats enable", aliases=("se", ), help="Adds stats to the server")
+    @commands.command(name="stats enable", aliases=("se",), help="Adds stats to the server")
     async def stats_enable(self, ctx):
         global status
         for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "stats status": 1}):
@@ -43,7 +43,7 @@ class Management(commands.Cog):
             await ctx.reply(f"Stats are already enabled")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="stats disable", aliases=("sd", ), help="Removes stats from the server")
+    @commands.command(name="stats disable", aliases=("sd",), help="Removes stats from the server")
     async def stats_disable(self, ctx):
         global find, status
         global category_stats_id
@@ -75,6 +75,165 @@ class Management(commands.Cog):
             await ctx.reply(f"Successfully disabled stats")
         else:
             await ctx.reply(f"Stats are already disabled")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="quotes enable", aliases=("qe",), help="Adds daily quotes to the server")
+    async def quotes_enable(self, ctx):
+        global status
+        for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "daily quotes status": 1}):
+            status = get_response(x)
+            print(status)
+        if status == "False":
+            overwrites_text_channel = {
+                ctx.guild.default_role: discord.PermissionOverwrite(send_messages=False)
+            }
+            category_info = await ctx.guild.create_category(name="↢↢↢↢↢『DailyDose』↣↣↣↣↣", position=0)
+            quote_channel = await ctx.guild.create_text_channel(name=f"『📚』: Daily-Quotes",
+                                                          overwrites=overwrites_text_channel,
+                                                          category=category_info, news=True)
+            find_server = {"guild id": ctx.guild.id}
+            enable_stats = {"$set": {"daily quotes status": True, "quote channel id": quote_channel.id,
+                                     "category info id": category_info.id}}
+            if find_server is not None:
+                server_collection.update_one(find_server, enable_stats)
+            await ctx.reply(f"Successfully enabled daily quotes")
+        else:
+            await ctx.reply(f"Daily quotes are already enabled")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="quotes disable", aliases=("qd",), help="Removes daily quotes from the server")
+    async def quotes_disable(self, ctx):
+        global find, status, history_channel_id, quote_channel_id, category_info_id
+        for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "category info id": 1}):
+            category_info_id = get_response(x)
+            find = x
+
+        for y in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "daily quotes status": 1}):
+            status = get_response(y)
+
+        try:
+            for history_channel in server_collection.find({"guild id": ctx.guild.id},
+                                                          {"_id": 0, "history channel id": 1}):
+                history_channel_id = get_response(history_channel)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            history_channel_id = None
+
+        try:
+            for quote_channel in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "quote channel id": 1}):
+                quote_channel_id = get_response(quote_channel)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            quote_channel_id = None
+
+        if status == "True":
+            try:
+                info_category = discord.Guild.get_channel(ctx.guild, int(category_info_id))
+                if quote_channel_id is not None:
+                    quote_channel = discord.Guild.get_channel(ctx.guild, int(quote_channel_id))
+                if history_channel_id is not None:
+                    history_channel = discord.Guild.get_channel(ctx.guild, int(history_channel_id))
+                for channel in info_category.text_channels:
+                    if channel == quote_channel:
+                        await channel.delete()
+
+                if history_channel is None:
+                    await info_category.delete()
+                    category_info_id = 0
+
+            except Exception as e:
+                await ctx.reply(f"Error Occurred: {e}")
+
+            disable_stats = {"$set": {"stats status": False, "history channel id": 0,
+                                      "category info id": int(category_info_id)}}
+            if find is not None:
+                server_collection.update_one(find, disable_stats)
+            await ctx.reply(f"Successfully disabled daily history")
+        else:
+            await ctx.reply(f"Daily history is already disabled")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="history enable", aliases=("he",), help="Adds daily history to the server")
+    async def history_enable(self, ctx):
+        global status
+        for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "daily history status": 1}):
+            status = get_response(x)
+            print(status)
+        if status == "False":
+            overwrites_text_channel = {
+                ctx.default_role: discord.PermissionOverwrite(send_messages=False)
+            }
+            try:
+                for y in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "category info id": 1}):
+                    status = get_response(y)
+                    print(status)
+                category_info = discord.Guild.get_channel(ctx.guild, int(category_info_id))
+            except Exception as e:
+                print(f"Error in fetching category: {e} ")
+                category_info = await ctx.create_category(name="↢↢↢↢↢『DailyDose』↣↣↣↣↣", position=0)
+            history_channel = await ctx.create_text_channel(name=f"『🤔』: Daily-History",
+                                                            overwrites=overwrites_text_channel,
+                                                            category=category_info, news=True)
+            find_server = {"guild id": ctx.guild.id}
+            enable_stats = {"$set": {"daily history status": True, "history channel id": history_channel.id,
+                                     "category info id": category_info.id}}
+            if find_server is not None:
+                server_collection.update_one(find_server, enable_stats)
+            await ctx.reply(f"Successfully enabled daily history")
+        else:
+            await ctx.reply(f"Daily history is already enabled")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="history disable", aliases=("hd",), help="Removes daily history from the server")
+    async def history_disable(self, ctx):
+        global find, status, history_channel_id, quote_channel_id, category_info_id
+        for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "category info id": 1}):
+            category_info_id = get_response(x)
+            find = x
+
+        for y in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "daily history status": 1}):
+            status = get_response(y)
+
+        try:
+            for history_channel in server_collection.find({"guild id": ctx.guild.id},
+                                                          {"_id": 0, "history channel id": 1}):
+                history_channel_id = get_response(history_channel)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            history_channel_id = None
+
+        try:
+            for quote_channel in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "quote channel id": 1}):
+                quote_channel_id = get_response(quote_channel)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            quote_channel_id = None
+
+        if status == "True":
+            try:
+                info_category = discord.Guild.get_channel(ctx.guild, int(category_info_id))
+                if quote_channel_id is not None:
+                    quote_channel = discord.Guild.get_channel(ctx.guild, int(quote_channel_id))
+                if history_channel_id is not None:
+                    history_channel = discord.Guild.get_channel(ctx.guild, int(history_channel_id))
+                for channel in info_category.text_channels:
+                    if channel == history_channel:
+                        await channel.delete()
+
+                if quote_channel is None:
+                    await info_category.delete()
+                    category_info_id = 0
+
+            except Exception as e:
+                await ctx.reply(f"Error Occurred: {e}")
+
+            disable_stats = {"$set": {"stats status": False, "history channel id": 0,
+                                      "category info id": int(category_info_id)}}
+            if find is not None:
+                server_collection.update_one(find, disable_stats)
+            await ctx.reply(f"Successfully disabled daily history")
+        else:
+            await ctx.reply(f"Daily history is already disabled")
 
     @commands.has_permissions(administrator=True)
     @commands.command(name="change_prefix", aliases=("cp",), help="Changes the prefix for server")
