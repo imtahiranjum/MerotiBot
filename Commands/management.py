@@ -102,7 +102,7 @@ class Management(commands.Cog):
             find_server = {"guild id": ctx.guild.id}
             enable_day_date = {"$set": {"time and date status": True, "day channel id": day_channel.id,
                                         "date channel id": date_channel.id,
-                                        "category stats id": category_for_day_date.id}}
+                                        "category day and date id": category_for_day_date.id}}
             if find_server is not None:
                 server_collection.update_one(find_server, enable_day_date)
                 await ctx.reply(f"Successfully enabled day and date in the server")
@@ -137,7 +137,7 @@ class Management(commands.Cog):
 
             disable_day_date = {"$set": {"time and date status": False, "day channel id": 0,
                                          "date channel id": 0,
-                                         "category stats id": 0}}
+                                         "category day and date id": 0}}
             find_server = {"guild id": ctx.guild.id}
             if find_server is not None:
                 server_collection.update_one(find_server, disable_day_date)
