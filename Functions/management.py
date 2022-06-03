@@ -1,43 +1,49 @@
 from Functions.database import server_collection, get_response
 from pytz import timezone
 from _datetime import datetime
+import random
+from translator import microsoft_translator_quote_ur
+from webscrap import history_today_second
 
 
-# current_area_time = time_get("Asia/Karachi")
-# time_now = current_area_time.strftime("%H:%M")
+def time_get(area):
+    timeArea = timezone(f'{area}')
+    date_and_time = datetime.now(timeArea)
+    return date_and_time
 
 
-# async def auto_quote(bot):
-#     for x in server_collection.find({"quote status": "true"}, {"_id": 0, "quote channel": 1}):
-#         try:
-#             channel = bot.get_channel(int(get_response(x)))
-#             print(channel)
-#             try:
-#                 await channel. \
-#                     send(f'Quote of the Day\n@daily_quotes\n',
-#                          embed=microsoft_translator_quote_ur("none", random.choice(sequence)))
-#             except KeyError:
-#                 print("Channel Not Set!")
-#         except Exception as e:
-#             print(f"Error occurred: {e}")
-#
-#
-# async def auto_history(bot):
-#     for x in server_collection.find({}, {"_id": 0, "history channel": 1}):
-#         try:
-#             channel = bot.get_channel(int(get_response(x)))
-#             print(channel)
-#             if channel != "None":
-#                 try:
-#                     await channel. \
-#                         send(f'@daily_history\n'
-#                              ,
-#                              embed=history_today_second("none"))
-#                 except KeyError:
-#                     print("Channel Not set!")
-#         except Exception as e:
-#             print(f"Error occurred: {e}")
-#
+async def auto_quote(bot):
+    for x in server_collection.find({"daily quotes status": "true"}, {"_id": 0, "quote channel id": 1}):
+        try:
+            channel = bot.get_channel(int(get_response(x)))
+            print(channel)
+            try:
+                sequence = ["i", "q", "j", "q", "t", "q", "g", "q"]
+                await channel. \
+                    send(f'Quote of the Day\n@daily_quotes\n',
+                         embed=microsoft_translator_quote_ur("none", random.choice(sequence)))
+            except KeyError:
+                print("Channel Not Set!")
+        except Exception as e:
+            print(f"Error occurred: {e}")
+
+
+async def auto_history(bot):
+    for x in server_collection.find({"daily history status": "true"}, {"_id": 0, "history channel id": 1}):
+        try:
+            channel = bot.get_channel(int(get_response(x)))
+            print(channel)
+            if channel != "None":
+                try:
+                    await channel. \
+                        send(f'@daily_history\n'
+                             ,
+                             embed=history_today_second("none"))
+                except KeyError:
+                    print("Channel Not set!")
+        except Exception as e:
+            print(f"Error occurred: {e}")
+
 #
 # async def auto_day(bot):
 #     current_area_time = time_get("Asia/Karachi")
@@ -68,12 +74,6 @@ from _datetime import datetime
 #                     print("Channel Not Set")
 #         except Exception as e:
 #             print(f"Error occurred: {e}")
-
-
-def time_get(area):
-    timeArea = timezone(f'{area}')
-    date_and_time = datetime.now(timeArea)
-    return date_and_time
 
 
 async def database_creation(ctx):
