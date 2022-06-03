@@ -1,5 +1,6 @@
 from discord.ext import commands
 from Functions.database import server_collection, get_response
+from Functions.management import time_get
 import discord
 
 
@@ -38,7 +39,7 @@ class Management(commands.Cog):
                                      "bots channel id": bots_channel.id, "category stats id": category_stats.id}}
             if find_server is not None:
                 server_collection.update_one(find_server, enable_stats)
-            await ctx.reply(f"Successfully enabled stats")
+                await ctx.reply(f"Successfully enabled stats")
         else:
             await ctx.reply(f"Stats are already enabled")
 
@@ -72,9 +73,77 @@ class Management(commands.Cog):
             find_server = {"guild id": ctx.guild.id}
             if find_server is not None:
                 server_collection.update_one(find_server, disable_stats)
-            await ctx.reply(f"Successfully disabled stats")
+                await ctx.reply(f"Successfully disabled stats")
         else:
             await ctx.reply(f"Stats are already disabled")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="date day", aliases=("edd",), help="Enables the day and date in server")
+    async def day_date_enable(self, ctx):
+        current_area_time = time_get("Asia/Karachi")
+        date_for_automation = current_area_time.strftime("%d-%b-%Y")
+        day_for_automation = current_area_time.strftime("%A")
+        global status
+        for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "time and date status": 1}):
+            status = get_response(x)
+            print(status)
+        if status == "False":
+            overwrites = {
+                ctx.guild.default_role: discord.PermissionOverwrite(connect=False)
+            }
+            category_for_day_date = await ctx.guild.create_category(name="↢↢↢↢↢↢『⏳⏲⏳』↣↣↣↣↣↣", position=0)
+            day_channel = await ctx.guild.create_voice_channel(name=f"『📅』: {day_for_automation}",
+                                                               overwrites=overwrites,
+                                                               category=category_for_day_date)
+            date_channel = await ctx.guild.create_voice_channel(name=f"『📆』: {date_for_automation}",
+                                                                overwrites=overwrites,
+                                                                category=category_for_day_date)
+
+            find_server = {"guild id": ctx.guild.id}
+            enable_day_date = {"$set": {"time and date status": True, "day channel id": day_channel.id,
+                                        "date channel id": date_channel.id,
+                                        "category stats id": category_for_day_date.id}}
+            if find_server is not None:
+                server_collection.update_one(find_server, enable_day_date)
+                await ctx.reply(f"Successfully enabled day and date in the server")
+        else:
+            await ctx.reply(f"Day and date is already enabled")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="day date disable", aliases=("ddd",), help="Removes day and date from the server")
+    async def day_date_disable(self, ctx):
+        global status
+        global category_day_date_id
+        for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "category day and date id": 1}):
+            category_day_date_id = get_response(x)
+
+        for y in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "time and date status": 1}):
+            status = get_response(y)
+
+        if status == "True":
+            try:
+                day_date_category = discord.Guild.get_channel(ctx.guild, int(category_day_date_id))
+                for channel in day_date_category.voice_channels:
+                    await channel.delete()
+
+                for channel in day_date_category.text_channels:
+                    await channel.delete()
+
+                await day_date_category.delete()
+
+            except Exception as e:
+                await ctx.reply(f"Couldn't do that due to some technical error! Try again later")
+                print(f"Error occurred {e}")
+
+            disable_day_date = {"$set": {"time and date status": False, "day channel id": 0,
+                                         "date channel id": 0,
+                                         "category stats id": 0}}
+            find_server = {"guild id": ctx.guild.id}
+            if find_server is not None:
+                server_collection.update_one(find_server, disable_day_date)
+                await ctx.reply(f"Successfully disabled day and date from the server")
+        else:
+            await ctx.reply(f"Day and date is already disabled")
 
     @commands.has_permissions(administrator=True)
     @commands.command(name="quotes enable", aliases=("qe",), help="Adds daily quotes to the server")
@@ -98,8 +167,8 @@ class Management(commands.Cog):
             if category_info is None:
                 category_info = await ctx.guild.create_category(name="↢↢↢↢↢『DailyDose』↣↣↣↣↣", position=0)
             quote_channel = await ctx.guild.create_text_channel(name=f"『📚』: Daily-Quotes",
-                                                          overwrites=overwrites_text_channel,
-                                                          category=category_info, news=True)
+                                                                overwrites=overwrites_text_channel,
+                                                                category=category_info, news=True)
             find_server = {"guild id": ctx.guild.id}
             enable_stats = {"$set": {"daily quotes status": True, "quote channel id": quote_channel.id,
                                      "category info id": category_info.id}}
@@ -183,8 +252,8 @@ class Management(commands.Cog):
             if category_info is None:
                 category_info = await ctx.guild.create_category(name="↢↢↢↢↢『DailyDose』↣↣↣↣↣", position=0)
             history_channel = await ctx.guild.create_text_channel(name=f"『🤔』: Daily-History",
-                                                            overwrites=overwrites_text_channel,
-                                                            category=category_info, news=True)
+                                                                  overwrites=overwrites_text_channel,
+                                                                  category=category_info, news=True)
             find_server = {"guild id": ctx.guild.id}
             enable_stats = {"$set": {"daily history status": True, "history channel id": history_channel.id,
                                      "category info id": category_info.id}}
@@ -214,7 +283,8 @@ class Management(commands.Cog):
                 history_channel_id = None
 
             try:
-                for quote_channel in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "quote channel id": 1}):
+                for quote_channel in server_collection.find({"guild id": ctx.guild.id},
+                                                            {"_id": 0, "quote channel id": 1}):
                     quote_channel_id = get_response(quote_channel)
             except Exception as e:
                 print(f"Error occurred: {e}")
