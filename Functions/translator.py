@@ -3,10 +3,10 @@ import os
 import requests
 import discord
 from _datetime import datetime
-from webscrap import quote_scraped, taymiyah_quote_scraped,\
+from Functions.webscrap import quote_scraped, taymiyah_quote_scraped,\
     ghazaali_quote_scraped, al_jawzi_quote_scraped, quote_scraped_islamic
 
-subscription_key = f"{os.environ['microsoft_translator_api_token']}"
+subscription_key = f"{os.getenv('microsoft_translator_api_token')}"
 
 
 def microsoft_translator(text_to_translate, to_language, ctx):
