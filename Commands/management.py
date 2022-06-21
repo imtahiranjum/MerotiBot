@@ -10,7 +10,7 @@ class Management(commands.Cog):
         self.bot = bot
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="stats enable", aliases=("se",), help="Adds stats to the server")
+    @commands.command(name="stats enable", aliases=("es",), help="Enables Stats")
     async def stats_enable(self, ctx):
         global status
         for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "stats status": 1}):
@@ -44,7 +44,7 @@ class Management(commands.Cog):
             await ctx.reply(f"Stats are already enabled")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="stats disable", aliases=("sd",), help="Removes stats from the server")
+    @commands.command(name="stats disable", aliases=("ds",), help="Disables Stats")
     async def stats_disable(self, ctx):
         global status
         global category_stats_id
@@ -78,7 +78,7 @@ class Management(commands.Cog):
             await ctx.reply(f"Stats are already disabled")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="date day", aliases=("edd",), help="Enables the day and date in server")
+    @commands.command(name="date day", aliases=("edd",), help="Enables day and date")
     async def day_date_enable(self, ctx):
         current_area_time = time_get("Asia/Karachi")
         date_for_automation = current_area_time.strftime("%d-%b-%Y")
@@ -110,7 +110,7 @@ class Management(commands.Cog):
             await ctx.reply(f"Day and date is already enabled")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="day date disable", aliases=("ddd",), help="Removes day and date from the server")
+    @commands.command(name="day date disable", aliases=("ddd",), help="Disables day and date")
     async def day_date_disable(self, ctx):
         global status
         global category_day_date_id
@@ -146,7 +146,7 @@ class Management(commands.Cog):
             await ctx.reply(f"Day and date is already disabled")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="quotes enable", aliases=("qe",), help="Adds daily quotes to the server")
+    @commands.command(name="quotes enable", aliases=("eq",), help="Enables daily quotes")
     async def quotes_enable(self, ctx):
         global status, category_info_id
         for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "daily quotes status": 1}):
@@ -179,7 +179,7 @@ class Management(commands.Cog):
             await ctx.reply(f"Daily quotes are already enabled")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="quotes disable", aliases=("qd",), help="Removes daily quotes from the server")
+    @commands.command(name="quotes disable", aliases=("dq",), help="Disables daily quotes")
     async def quotes_disable(self, ctx):
         global status, history_channel_id, quote_channel_id, category_info_id
         for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "category info id": 1}):
@@ -232,7 +232,7 @@ class Management(commands.Cog):
             await ctx.reply(f"Daily history is already disabled")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="history enable", aliases=("he",), help="Adds daily history to the server")
+    @commands.command(name="history enable", aliases=("eh",), help="Enable daily history")
     async def history_enable(self, ctx):
         global status, category_info_id, category_info
         for x in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "daily history status": 1}):
@@ -264,7 +264,7 @@ class Management(commands.Cog):
             await ctx.reply(f"Daily history is already enabled")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="history disable", aliases=("hd",), help="Removes daily history from the server")
+    @commands.command(name="history disable", aliases=("dh",), help="Disables daily history")
     async def history_disable(self, ctx):
         global find, status, history_channel_id, quote_channel_id, category_info_id
         for y in server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "daily history status": 1}):
@@ -325,45 +325,45 @@ class Management(commands.Cog):
             server_collection.update_one(find_server, set_prefix)
         await ctx.reply(f"Successfully changed prefix to ```{prefix}```")
 
-    @commands.command(name="change date channel", aliases=("cdatec",),
-                      help="Changes bot date Channel for this server : copy id of channel and paste after command")
-    @commands.has_permissions(administrator=True)
-    async def change_date_channel(self, ctx, date_channel_id):
-        find_server = {"guild id": ctx.guild.id}
-        set_date_channel = {"$set": {"date channel": int(date_channel_id)}}
-        if find_server is not None:
-            server_collection.update_one(find_server, set_date_channel)
-            await ctx.reply(f"Quote Channel Changed to {date_channel_id}")
-
-    @commands.command(name="change day channel", aliases=("cdayc",),
-                      help="Changes bot Time Channel for this server : copy id of channel and paste after command")
-    @commands.has_permissions(administrator=True)
-    async def change_day_channel(self, ctx, day_channel_id):
-        find_server = {"guild id": ctx.guild.id}
-        set_day_channel = {"$set": {"day channel": int(day_channel_id)}}
-        if find_server is not None:
-            server_collection.update_one(find_server, set_day_channel)
-            await ctx.reply(f"Day Channel Changed to {day_channel_id}")
-
-    @commands.command(name="change history channel", aliases=("chc",),
-                      help="Changes History Channel for this server : copy id of channel and paste after command")
-    @commands.has_permissions(administrator=True)
-    async def change_history_channel(self, ctx, history_channel_id):
-        find_server = {"guild id": ctx.guild.id}
-        set_history_channel = {"$set": {"history channel": int(history_channel_id)}}
-        if find_server is not None:
-            server_collection.update_one(find_server, set_history_channel)
-            await ctx.reply(f"History Channel Changed to {history_channel_id}")
-
-    @commands.command(name="change quote channel", aliases=("cqc",),
-                      help="Changes Quote Channel for this server : copy id of channel and paste after command")
-    @commands.has_permissions(administrator=True)
-    async def change_quote_channel(self, ctx, quote_channel_id):
-        find_server = {"guild id": ctx.guild.id}
-        set_quote_channel = {"$set": {"quote channel": int(quote_channel_id)}}
-        if find_server is not None:
-            server_collection.update_one(find_server, set_quote_channel)
-            await ctx.reply(f"Quote Channel Changed to {quote_channel_id}")
+    # @commands.command(name="change date channel", aliases=("cdatec",),
+    #                   help="Changes bot date Channel for this server : copy id of channel and paste after command")
+    # @commands.has_permissions(administrator=True)
+    # async def change_date_channel(self, ctx, date_channel_id):
+    #     find_server = {"guild id": ctx.guild.id}
+    #     set_date_channel = {"$set": {"date channel": int(date_channel_id)}}
+    #     if find_server is not None:
+    #         server_collection.update_one(find_server, set_date_channel)
+    #         await ctx.reply(f"Quote Channel Changed to {date_channel_id}")
+    #
+    # @commands.command(name="change day channel", aliases=("cdayc",),
+    #                   help="Changes bot Time Channel for this server : copy id of channel and paste after command")
+    # @commands.has_permissions(administrator=True)
+    # async def change_day_channel(self, ctx, day_channel_id):
+    #     find_server = {"guild id": ctx.guild.id}
+    #     set_day_channel = {"$set": {"day channel": int(day_channel_id)}}
+    #     if find_server is not None:
+    #         server_collection.update_one(find_server, set_day_channel)
+    #         await ctx.reply(f"Day Channel Changed to {day_channel_id}")
+    #
+    # @commands.command(name="change history channel", aliases=("chc",),
+    #                   help="Changes History Channel for this server : copy id of channel and paste after command")
+    # @commands.has_permissions(administrator=True)
+    # async def change_history_channel(self, ctx, history_channel_id):
+    #     find_server = {"guild id": ctx.guild.id}
+    #     set_history_channel = {"$set": {"history channel": int(history_channel_id)}}
+    #     if find_server is not None:
+    #         server_collection.update_one(find_server, set_history_channel)
+    #         await ctx.reply(f"History Channel Changed to {history_channel_id}")
+    #
+    # @commands.command(name="change quote channel", aliases=("cqc",),
+    #                   help="Changes Quote Channel for this server : copy id of channel and paste after command")
+    # @commands.has_permissions(administrator=True)
+    # async def change_quote_channel(self, ctx, quote_channel_id):
+    #     find_server = {"guild id": ctx.guild.id}
+    #     set_quote_channel = {"$set": {"quote channel": int(quote_channel_id)}}
+    #     if find_server is not None:
+    #         server_collection.update_one(find_server, set_quote_channel)
+    #         await ctx.reply(f"Quote Channel Changed to {quote_channel_id}")
 
 
 def setup(bot):
