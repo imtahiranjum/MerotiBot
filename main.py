@@ -3,10 +3,10 @@ import discord
 from discord.ext import commands, tasks
 import datetime
 import random
-import asyncio
 from ping import keep_alive
 from Functions.database import server_collection, get_response
-from Functions.management import database_creation, stats_update, database_deletion
+from Functions.management import database_creation, stats_update, database_deletion,\
+    time_get, auto_quote, auto_history, set_day_date
 
 intents = discord.Intents.all()
 mentions = discord.AllowedMentions.all()
@@ -80,7 +80,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="just booted!"))
     print("Logged in!")
     auto_tasks.start()
-    # auto_tasks_2.start()
+    auto_tasks_2.start()
 
 
 @tasks.loop(seconds=360.0)
@@ -89,16 +89,18 @@ async def auto_tasks():
     await bot.change_presence(activity=discord.Game(random.choice(statuses)))
 
 
-# @tasks.loop(seconds=59.0)
-# async def auto_tasks_2():
-#     print(current_area_time.strftime("%H:%M\n %a, %d-%b-%Y"))
-#     if time_now == scheduled_time[0]:
-#         await auto_quote(bot)
-#     if time_now == scheduled_time[1]:
-#         await auto_history(bot)
-#     if time_now == scheduled_time[2]:
-#         await auto_day(bot)
-#         await auto_date(bot)
+@tasks.loop(seconds=59.0)
+async def auto_tasks_2():
+    scheduled_time = ["01:33", "22:24", "11:13"]
+    current_area_time = time_get("Asia/Karachi")
+    time_now = current_area_time.strftime("%H:%M")
+    print(current_area_time.strftime("%H:%M\n %a, %d-%b-%Y"))
+    if time_now == scheduled_time[0]:
+        await auto_quote(bot)
+    if time_now == scheduled_time[1]:
+        await auto_history(bot)
+    if time_now == scheduled_time[2]:
+        await set_day_date(bot)
 
 
 try:
