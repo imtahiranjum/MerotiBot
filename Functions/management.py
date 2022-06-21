@@ -2,8 +2,8 @@ from Functions.database import server_collection, get_response
 from pytz import timezone
 from _datetime import datetime
 import random
-from translator import microsoft_translator_quote_ur
-from webscrap import history_today_second
+from Functions.translator import microsoft_translator_quote_ur
+from Functions.webscrap import history_today_second
 
 
 def time_get(area):
@@ -13,7 +13,7 @@ def time_get(area):
 
 
 async def auto_quote(bot):
-    for x in server_collection.find({"daily quotes status": "true"}, {"_id": 0, "quote channel id": 1}):
+    for x in server_collection.find({"daily quotes status": True}, {"_id": 0, "quote channel id": 1}):
         try:
             channel = bot.get_channel(int(get_response(x)))
             print(channel)
@@ -29,7 +29,8 @@ async def auto_quote(bot):
 
 
 async def auto_history(bot):
-    for x in server_collection.find({"daily history status": "true"}, {"_id": 0, "history channel id": 1}):
+    for x in server_collection.find({"daily history status": True}, {"_id": 0, "history channel id": 1}):
+        print(x)
         try:
             channel = bot.get_channel(int(get_response(x)))
             print(channel)
@@ -44,36 +45,32 @@ async def auto_history(bot):
         except Exception as e:
             print(f"Error occurred: {e}")
 
-#
-# async def auto_day(bot):
-#     current_area_time = time_get("Asia/Karachi")
-#     day_for_automation = current_area_time.strftime("%A")
-#     for x in server_collection.find({}, {"_id": 0, "day channel": 1}):
-#         if x is not None:
-#             try:
-#                 channel = bot.get_channel(int(get_response(x)))
-#                 if channel != "None":
-#                     try:
-#                         await channel.edit(name=f"『📅』: {day_for_automation}")
-#                     except KeyError:
-#                         print("Channel Not Set")
-#             except Exception as e:
-#                 print(f"Error occurred: {e}")
-#
-#
-# async def auto_date(bot):
-#     current_area_time = time_get("Asia/Karachi")
-#     date_for_automation = current_area_time.strftime("%d-%b-%Y")
-#     for x in server_collection.find({}, {"_id": 0, "date channel": 1}):
-#         try:
-#             channel = bot.get_channel(int(get_response(x)))
-#             if channel != "None":
-#                 try:
-#                     await channel.edit(name=f"『📆』: {date_for_automation}")
-#                 except KeyError:
-#                     print("Channel Not Set")
-#         except Exception as e:
-#             print(f"Error occurred: {e}")
+
+async def set_day_date(bot):
+    current_area_time = time_get("Asia/Karachi")
+    day_for_automation = current_area_time.strftime("%A")
+    date_for_automation = current_area_time.strftime("%d-%b-%Y")
+    for x in server_collection.find({"time and date status": "true"}, {"_id": 0, "day channel id": 1}):
+        if x is not None:
+            try:
+                channel = bot.get_channel(int(get_response(x)))
+                if channel != "None":
+                    try:
+                        await channel.edit(name=f"『📅』: {day_for_automation}")
+                    except KeyError:
+                        print("Channel Not Set")
+            except Exception as e:
+                print(f"Error occurred: {e}")
+    for y in server_collection.find({"time and date status": "true"}, {"_id": 0, "date channel id": 1}):
+        try:
+            channel = bot.get_channel(int(get_response(y)))
+            if channel != "None":
+                try:
+                    await channel.edit(name=f"『📆』: {date_for_automation}")
+                except KeyError:
+                    print("Channel Not Set")
+        except Exception as e:
+            print(f"Error occurred: {e}")
 
 
 async def database_creation(ctx):
@@ -105,7 +102,7 @@ async def database_deletion(ctx):
 async def stats_update(ctx, bot):
     guild = ctx.guild
     total_members = guild.member_count
-    for_all_person = server_collection.find({"guild id": guild.id, "stats status": "true"},
+    for_all_person = server_collection.find({"guild id": guild.id, "stats status": True},
                                             {"_id": 0, "members channel id": 1})
     print(for_all_person)
     for x in for_all_person:
