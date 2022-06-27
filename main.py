@@ -44,9 +44,9 @@ async def on_guild_join(ctx):
     if thumbnail_icon is not None:
         embed.set_thumbnail(url=str(ctx.icon))
     embed.add_field(name="My Intro", value="I am a multi purpose bot with many functions and features like "
-                                           "moderation, utilities, management and more.", inline=True)
-    embed.add_field(name="My Usage", value="My prefix is ```m```, you can change it by using ```m cp``` "
-                                           "Use ```m help``` to see the commands.", inline=True)
+                                           "moderation, utilities, management and more.", inline=False)
+    embed.add_field(name="My Usage", value="My prefix is ```m```, you can change it by using ```mcp``` command"
+                                           "Use ```mhelp``` command to see all commands.", inline=False)
     embed.set_footer(text="Thank You for adding me in your server!")
     channel = ctx.system_channel
     if channel is not None:
