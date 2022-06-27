@@ -37,7 +37,7 @@ async def auto_history(bot):
             if channel != "None":
                 try:
                     await channel. \
-                        send(f'@daily_history\n'
+                        send(f' '
                              ,
                              embed=history_today_second("none"))
                 except KeyError:
@@ -50,7 +50,7 @@ async def set_day_date(bot):
     current_area_time = time_get("Asia/Karachi")
     day_for_automation = current_area_time.strftime("%A")
     date_for_automation = current_area_time.strftime("%d-%b-%Y")
-    for x in server_collection.find({"time and date status": "true"}, {"_id": 0, "day channel id": 1}):
+    for x in server_collection.find({"time and date status": True}, {"_id": 0, "day channel id": 1}):
         if x is not None:
             try:
                 channel = bot.get_channel(int(get_response(x)))
@@ -61,7 +61,7 @@ async def set_day_date(bot):
                         print("Channel Not Set")
             except Exception as e:
                 print(f"Error occurred: {e}")
-    for y in server_collection.find({"time and date status": "true"}, {"_id": 0, "date channel id": 1}):
+    for y in server_collection.find({"time and date status": True}, {"_id": 0, "date channel id": 1}):
         try:
             channel = bot.get_channel(int(get_response(y)))
             if channel != "None":
