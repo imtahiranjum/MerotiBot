@@ -13,14 +13,6 @@ class Music(commands.Cog):
     async def join(self, ctx):
         await join(ctx)
 
-    @commands.command(name='leave', help='To make the bot leave the voice channel')
-    async def leave(self, ctx):
-        voice_client = ctx.message.guild.voice_client
-        if voice_client.is_connected():
-            voice_client.disconnect()
-        else:
-            await ctx.reply("The bot is not connected to any voice channel.")
-
     @commands.command(name='play_song', aliases=("ps",), help='To play song')
     async def play(self, ctx, url):
         try:
@@ -47,6 +39,10 @@ class Music(commands.Cog):
     @commands.command(name='play_song_loop', aliases=("psl",), help='To play one song in loop for number of times')
     async def playloop(self, ctx, times, url):
         global message
+        try:
+            await join(ctx)
+        except ConnectionError:
+            print("Already Connected")
         try:
             channel = ctx.message.author.voice.channel
             voice_client = ctx.message.guild.voice_client
@@ -84,7 +80,8 @@ class Music(commands.Cog):
                 else:
                     await message.edit(content=f"Remaining loops: {int(times) - x - 1}")
 
-        except ValueError:
+        except Exception as e:
+            print(f"Error occurred: {e}")
             await ctx.message.add_reaction("👎")
             await ctx.reply("Something is wrong :( ")
 
