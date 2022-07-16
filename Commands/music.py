@@ -72,7 +72,7 @@ class Music(commands.Cog):
                         pass
                     else:
                         condition = False
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(1)
                 voice_channel.play(discord.FFmpegPCMAudio(source=filenameS))
                 if x == 0:
                     message = await ctx.message.reply(f"Remaining loops: {int(times) - x - 1}")
