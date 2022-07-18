@@ -81,6 +81,7 @@ async def database_creation(ctx):
             "history channel id": 0,
             "quote channel id": 0,
             "members channel id": 0,
+            "humans channel id": 0,
             "bots channel id": 0,
             "category info id": 0,
             "category day and date id": 0,
@@ -100,6 +101,7 @@ async def database_deletion(ctx):
 
 
 async def stats_update(ctx, bot):
+    humans = 0
     guild = ctx.guild
     total_members = guild.member_count
     for_all_person = server_collection.find({"guild id": guild.id, "stats status": True},
@@ -135,3 +137,18 @@ async def stats_update(ctx, bot):
                 print(f"Channel Not Set: {e}")
         except Exception as e:
             print(f"Error occurred: {e}")
+    humans = total_members - bot_counter
+    try:
+        for_bots = server_collection.find({"guild id": ctx.guild.id}, {"_id": 0, "humans channel id": 1})
+        for x in for_bots:
+            try:
+                channel = bot.get_channel(int(get_response(x)))
+                try:
+                    await channel.edit(name=f"『🤵』 Humans: {humans}")
+                    print("Updated Counter")
+                except Exception as e:
+                    print(f"Channel Not Set: {e}")
+            except Exception as e:
+                print(f"Error occurred: {e}")
+    except Exception as e:
+        print(f"Error Occurred: {e}")
