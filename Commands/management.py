@@ -23,20 +23,24 @@ class Management(commands.Cog):
             category_stats = await ctx.guild.create_category(name="↢↢↢↢『SERVER STATS』↣↣↣↣")
             total_members = ctx.guild.member_count
             bot_counter = 0
+            humans = 0
             try:
                 for x in ctx.guild.members:
                     if x.bot:
                         bot_counter = bot_counter + 1
             except Exception as e:
                 ctx.reply(f"Couldn't count bots because following error occurred:-\n{e}")
-
+            humans = total_members - bot_counter
             members_channel = await ctx.guild.create_voice_channel(name=f"『🤵』 Members: {total_members}",
                                                                    overwrites=overwrites, category=category_stats)
+            humans_channel = await ctx.guild.create_voice_channel(name=f"『🤵』 Humans: {humans}", overwrites=overwrites,
+                                                                  category=category_stats)
             bots_channel = await ctx.guild.create_voice_channel(name=f"『🤖』 Bots: {bot_counter}", overwrites=overwrites,
                                                                 category=category_stats)
             find_server = {"guild id": ctx.guild.id}
             enable_stats = {"$set": {"stats status": True, "members channel id": members_channel.id,
-                                     "bots channel id": bots_channel.id, "category stats id": category_stats.id}}
+                                     "bots channel id": bots_channel.id, "humans channel id": humans_channel.id,
+                                     "category stats id": category_stats.id}}
             if find_server is not None:
                 server_collection.update_one(find_server, enable_stats)
                 await ctx.reply(f"Successfully enabled stats")
@@ -69,7 +73,8 @@ class Management(commands.Cog):
                 await ctx.reply(f"Error Occurred: {e}")
 
             disable_stats = {"$set": {"stats status": False, "members channel id": 0,
-                                      "bots channel id": 0, "category stats id": 0}}
+                                      "bots channel id": 0, "humans channel id": 0,
+                                      "category stats id": 0}}
             find_server = {"guild id": ctx.guild.id}
             if find_server is not None:
                 server_collection.update_one(find_server, disable_stats)
@@ -324,6 +329,12 @@ class Management(commands.Cog):
         if find_server is not None:
             server_collection.update_one(find_server, set_prefix)
         await ctx.reply(f"Successfully changed prefix to ```{prefix}```")
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="change_prefix", aliases=("cp",), help="Changes the prefix for server")
+    async def add_new_channel(self, ctx, name, category_id):
+        category = ctx.guild.get_channel(category_id)
+        created_channel = await ctx.guild.create_voice_channel(name=f"{name}", category=category)
 
     # @commands.command(name="change date channel", aliases=("cdatec",),
     #                   help="Changes bot date Channel for this server : copy id of channel and paste after command")

@@ -91,7 +91,7 @@ async def auto_tasks():
 
 @tasks.loop(seconds=59.0)
 async def auto_tasks_2():
-    scheduled_time = ["01:33", "22:24", "11:13"]
+    scheduled_time = ["01:33", "20:00", "00:00"]
     current_area_time = time_get("Asia/Karachi")
     time_now = current_area_time.strftime("%H:%M")
     print(current_area_time.strftime("%H:%M\n %a, %d-%b-%Y"))
