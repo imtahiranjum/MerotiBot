@@ -17,3 +17,13 @@ def get_response(response):
     prettified = prettified.replace("'", "")
     prettified = prettified.replace('"', "")
     return prettified
+
+
+def add_for_all(key, initial_value):
+    server_collection.update_many({}, {"$set": {f"{key}": initial_value}}, upsert=True)
+    print(f"Updated: {key}: {initial_value}")
+
+
+def add_for_one(server_id, key, value):
+    server_collection.update_one({"guild id": server_id}, {"$set": {f"{key}": value}})
+    print(f"Updated: {key}: {value}")
