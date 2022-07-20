@@ -331,10 +331,20 @@ class Management(commands.Cog):
         await ctx.reply(f"Successfully changed prefix to ```{prefix}```")
 
     @commands.has_permissions(administrator=True)
-    @commands.command(name="change_prefix", aliases=("cp",), help="Changes the prefix for server")
-    async def add_new_channel(self, ctx, name, category_id):
-        category = ctx.guild.get_channel(category_id)
-        created_channel = await ctx.guild.create_voice_channel(name=f"{name}", category=category)
+    @commands.command(name="newvc", aliases=("nvc",), help="Adds new voice channel in the server")
+    async def add_new_voice_channel(self, ctx, name, category_id):
+        category_check = ctx.guild.categories
+        for category in category_check:
+            if category.id == int(category_id):
+                print("Matched")
+                category_required = category
+        print(category_required)
+        if category_required is None:
+            print("No matched category")
+        else:
+            created_channel = await ctx.guild.create_voice_channel(name=f"{name}", category=category_required)
+            ctx.reply("Channel created!")
+            print(created_channel)
 
     # @commands.command(name="change date channel", aliases=("cdatec",),
     #                   help="Changes bot date Channel for this server : copy id of channel and paste after command")
