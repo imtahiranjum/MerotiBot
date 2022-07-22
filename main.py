@@ -43,9 +43,9 @@ for cogs in os.listdir("./Commands"):
 async def on_guild_join(ctx):
     embed = discord.Embed(title="Hi! I am Meroti, your friend and assistant!",
                           timestamp=datetime.datetime.utcnow(), color=0xdb0000)
-    thumbnail_icon = ctx.icon
+    thumbnail_icon = ctx.icon_url
     if thumbnail_icon is not None:
-        embed.set_thumbnail(url=str(ctx.icon))
+        embed.set_thumbnail(url=str(thumbnail_icon))
     embed.add_field(name="My Intro", value="I am a multi purpose bot with many functions and features like "
                                            "moderation, utilities, management and more.", inline=False)
     embed.add_field(name="My Usage", value="My prefix is ```m```, you can change it by using ```mcp``` command"
