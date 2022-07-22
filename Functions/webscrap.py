@@ -92,7 +92,7 @@ def create_list(r1, r2):
 def history_today():
     text = ""
     html_text = requests.get("https://www.history.com/this-day-in-history").text
-    soup = BeautifulSoup(html_text, "lxml")
+    soup = BeautifulSoup(html_text)
     history_today_text = soup.find_all('h2', class_='m-ellipsis--text m-card--header-text')
     history_today_date = soup.find_all('div', class_="m-card--label mm-card--tdih-year")
     length = len(history_today_date)
