@@ -1,5 +1,5 @@
 import os
-import pymongo as pymongo
+import pymongo
 
 client = pymongo.MongoClient(os.getenv('database_access'))
 # print(client)
