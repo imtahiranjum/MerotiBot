@@ -5,8 +5,11 @@ import datetime
 import random
 from ping import keep_alive
 from Functions.database import server_collection, get_response
-from Functions.management import database_creation, stats_update, database_deletion,\
+from Functions.management import database_creation, stats_update, database_deletion, \
     time_get, auto_quote, auto_history, set_day_date
+
+os.system("pip install PyNacl")
+os.system("pip install 'pymongo[srv]'")
 
 intents = discord.Intents.all()
 mentions = discord.AllowedMentions.all()
@@ -85,7 +88,7 @@ async def on_ready():
 
 @tasks.loop(seconds=360.0)
 async def auto_tasks():
-    statuses = ["with you!", "without you!",  "with Crypto!", "with humans!", "with Hearts!", "with Toys!"]
+    statuses = ["with you!", "without you!", "with Crypto!", "with humans!", "with Hearts!", "with Toys!"]
     await bot.change_presence(activity=discord.Game(random.choice(statuses)))
 
 
