@@ -1,9 +1,18 @@
 import random
 from art import text2art
+from Functions.strings import list
+
+
+def length_counter(array):
+    global counter
+    counter = 0
+    for x in array:
+        counter = counter + 1
+    return counter
 
 
 def text_converter_random(text):
-    return str(text2art(text, random.choice(list)))
+    return str(text2art(text, list[(random.randint(0, length_counter(list)))]))
 
 
 def text_converter(text, font):
@@ -47,9 +56,11 @@ def italics(text):
     return "*{}*".format(text)
 
 
-def pagify(text, delims=["\n"], *, escape=True, shorten_by=8,
+def pagify(text, delims=None, *, escape=True, shorten_by=8,
            page_length=2000):
     """DOES NOT RESPECT MARKDOWN BOXES OR INLINE CODE"""
+    if delims is None:
+        delims = ["\n"]
     in_text = text
     if escape:
         num_mentions = text.count("@here") + text.count("@everyone")
